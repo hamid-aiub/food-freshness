@@ -37,8 +37,15 @@ python train.py
 ```bash
 # Single image
 
-python explain.py --image Dataset/Fresh/FreshMango/freshMango (1).jpg
-python explain.py --image /path/to/mango.jpg
+# Fresh
+python explain.py --image "Dataset/Fresh/FreshMango/freshMango (1).jpg"
+python explain.py --image "Dataset/Fresh/FreshMango/freshMango (100).jpg"
+python explain.py --image "Dataset/Fresh/FreshMango/freshMango (300).jpg"
+
+# Rotten
+python explain.py --image "Dataset/Rotten/RottenMango/RottenMango (1).jpg"
+python explain.py --image "Dataset/Rotten/RottenMango/RottenMango (100).jpg"
+python explain.py --image "Dataset/Rotten/RottenMango/RottenMango (300).jpg"
 
 # Grid from test set (12 random images)
 python explain.py --test_set --n 12

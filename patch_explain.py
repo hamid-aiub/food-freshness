@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+"""
+Run this once from your project folder:
+    python patch_explain.py
+
+It rewrites explain.py with a version that works on Apple Silicon MPS.
+Uses EigenCAM (no gradients needed) as the default — works perfectly on MPS.
+"""
+
+EXPLAIN_PY = """\
 # explain.py  –  Grad-CAM XAI visualization (MPS-compatible)
 #
 # Usage:
@@ -130,7 +140,7 @@ def plot_single(result, save_path=None):
         spine.set_edgecolor(border_col)
         spine.set_linewidth(3)
     ax2.set_title(
-        f"EigenCAM Heatmap\nPredicted: {result['pred_class']} "
+        f"EigenCAM Heatmap\\nPredicted: {result['pred_class']} "
         f"({result['confidence']:.1f}%)",
         fontsize=12, color=border_col,
     )
@@ -174,9 +184,9 @@ def plot_grid(results, save_path=None, cols=4):
         correct = (res["true_label"] is None or
                    res["true_label"] == res["pred_class"])
         color   = "#27ae60" if correct else "#e74c3c"
-        title   = f"{res['pred_class']}\n{res['confidence']:.1f}%"
+        title   = f"{res['pred_class']}\\n{res['confidence']:.1f}%"
         if res["true_label"] and not correct:
-            title += f"\n(true: {res['true_label']})"
+            title += f"\\n(true: {res['true_label']})"
         ax.set_title(title, fontsize=7.5, color=color)
         ax.axis("off")
         for spine in ax.spines.values():
@@ -223,7 +233,7 @@ def main():
     model, class_names = load_checkpoint(config.BEST_MODEL_PATH, config.DEVICE)
 
     if args.image:
-        print(f"\n🔍 Explaining: {args.image}")
+        print(f"\\n🔍 Explaining: {args.image}")
         result = explain_image(model, class_names, args.image,
                                config.DEVICE, cam_method=args.method)
         plot_single(result,
@@ -232,14 +242,14 @@ def main():
 
     if args.test_set:
         items, class_names = get_test_samples(config, n=args.n)
-        print(f"\n🔍 Explaining {len(items)} images from the test split...")
+        print(f"\\n🔍 Explaining {len(items)} images from the test split...")
     else:
         IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
         all_imgs = [p for p in Path(args.folder).iterdir()
                     if p.suffix.lower() in IMG_EXTS]
         chosen   = random.sample(all_imgs, min(args.n, len(all_imgs)))
         items    = [(str(p), None) for p in chosen]
-        print(f"\n🔍 Explaining {len(items)} images from {args.folder}...")
+        print(f"\\n🔍 Explaining {len(items)} images from {args.folder}...")
 
     results = []
     for path, true_label in items:
@@ -257,9 +267,18 @@ def main():
     if labeled:
         correct = sum(1 for r in labeled
                       if r["true_label"] == r["pred_class"])
-        print(f"\n🎯 Accuracy on shown samples: "
+        print(f"\\n🎯 Accuracy on shown samples: "
               f"{correct}/{len(labeled)} ({100*correct/len(labeled):.1f}%)")
 
 
 if __name__ == "__main__":
     main()
+"""
+
+import os
+
+target = os.path.join(os.path.dirname(__file__), "explain.py")
+with open(target, "w") as f:
+    f.write(EXPLAIN_PY)
+print(f"✅ explain.py patched at: {target}")
+print("Now run:  python explain.py --image \"Dataset/Fresh/FreshMango/freshMango (1).jpg\"")
